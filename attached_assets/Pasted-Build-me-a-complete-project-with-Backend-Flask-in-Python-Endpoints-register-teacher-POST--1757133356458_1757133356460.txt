@@ -1,0 +1,118 @@
+Build me a complete project with:
+
+Backend (Flask in Python):
+
+Endpoints:
+
+/register_teacher (POST: name, email, password)
+
+/login (POST: email, password → returns role: teacher/student)
+
+/add_student (POST: teacher adds a student with name, email, class, section, roll no; auto-generate student ID & password; send email & also save details in Excel).
+
+/add_students_excel (POST: upload Excel → add multiple students).
+
+/mark_attendance (POST: mark attendance for student ID).
+
+/weekly_report/<student_id> (GET: weekly attendance).
+
+/generate_qr/<student_id> (GET: generate QR with name, class, section, roll no, ID).
+
+
+Use SQLite for database.
+
+Use bcrypt for password hashing.
+
+Use Flask-Mail for sending emails.
+
+Use qrcode for QR generation.
+
+Store Excel in a student_sheets/ folder.
+
+Store QR images in qr_codes/.
+
+Enable CORS so frontend can fetch data.
+
+Run server on port 5000.
+
+
+Frontend (HTML, CSS, JS only):
+
+Clean, modern UI with animations (new-style, card-based design, soft shadows, hover effects, smooth transitions).
+
+Pages:
+
+1. Landing Page → Welcome + Login/Signup buttons.
+
+
+2. Teacher Login/Register page.
+
+
+3. Student Login page.
+
+
+4. Teacher Dashboard →
+
+Add Student (form + upload Excel).
+
+List of Students with "Generate QR" button.
+
+QR Scanner (use html5-qrcode library via CDN) to mark attendance.
+
+Weekly Report viewer (select student → see attendance).
+
+
+
+5. Student Dashboard →
+
+View their attendance records.
+
+See their own QR Code.
+
+
+
+
+Use Fetch API in JavaScript to connect with Flask backend (http://localhost:5000).
+
+Add smooth animations:
+
+Buttons hover with color transitions.
+
+Card fade-in / slide-in animations.
+
+QR scanner overlay with glowing border.
+
+Dashboard sections with slide-in left/right effect.
+
+
+
+Connection Setup:
+
+Frontend fetch example:
+
+
+fetch("http://localhost:5000/login", {
+  method: "POST",
+  headers: {"Content-Type": "application/json"},
+  body: JSON.stringify({ email: "test@school.com", password: "1234" })
+})
+.then(res => res.json())
+.then(data => console.log(data))
+.catch(err => console.error(err));
+
+Ensure backend runs on port 5000.
+
+Frontend served via Replit static HTML/JS/CSS.
+
+CORS enabled in Flask so frontend works without issues.
+
+
+Deliverables:
+
+app.py → Flask backend.
+
+index.html, teacher_dashboard.html, student_dashboard.html, styles.css, script.js.
+
+Fully working connection between backend & frontend.
+
+Smooth, animated design.
