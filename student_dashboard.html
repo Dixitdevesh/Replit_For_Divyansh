@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - School Attendance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h4><i class="fas fa-user-graduate me-2"></i>Student Portal</h4>
+                <p class="sidebar-subtitle">Welcome, <span id="studentName">Student</span></p>
+                <div class="student-info-compact">
+                    <small>
+                        <i class="fas fa-id-badge me-1"></i>ID: <span id="studentId">-</span><br>
+                        <i class="fas fa-graduation-cap me-1"></i><span id="studentClass">-</span>-<span id="studentSection">-</span><br>
+                        <i class="fas fa-hashtag me-1"></i>Roll: <span id="studentRoll">-</span>
+                    </small>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" onclick="showSection('overview')">
+                    <i class="fas fa-tachometer-alt"></i>Overview
+                </a>
+                <a href="#" class="nav-link" onclick="showSection('attendance')">
+                    <i class="fas fa-calendar-check"></i>My Attendance
+                </a>
+                <a href="#" class="nav-link" onclick="showSection('qr-code')">
+                    <i class="fas fa-qrcode"></i>My QR Code
+                </a>
+                <a href="#" class="nav-link" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Overview Section -->
+            <div id="overview" class="content-section active">
+                <div class="section-header fade-in">
+                    <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard Overview</h2>
+                    <p>View your attendance summary and statistics</p>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="stats-card slide-in-left">
+                            <div class="stats-icon">
+                                <i class="fas fa-calendar-check text-success"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 id="presentDays">0</h3>
+                                <p>Present Days (This Week)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card slide-in-up">
+                            <div class="stats-icon">
+                                <i class="fas fa-calendar-times text-danger"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 id="absentDays">0</h3>
+                                <p>Absent Days (This Week)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card slide-in-right">
+                            <div class="stats-icon">
+                                <i class="fas fa-percentage text-warning"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 id="attendancePercentage">0%</h3>
+                                <p>Attendance Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row g-4 mt-4">
+                    <div class="col-12">
+                        <div class="quick-actions-card slide-in-up">
+                            <h4><i class="fas fa-rocket me-2"></i>Quick Actions</h4>
+                            <div class="quick-actions">
+                                <button class="btn btn-primary" onclick="showSection('qr-code')">
+                                    <i class="fas fa-qrcode me-2"></i>View My QR Code
+                                </button>
+                                <button class="btn btn-info" onclick="showSection('attendance')">
+                                    <i class="fas fa-chart-bar me-2"></i>View Attendance Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Section -->
+            <div id="attendance" class="content-section">
+                <div class="section-header fade-in">
+                    <h2><i class="fas fa-calendar-check me-2"></i>My Attendance Record</h2>
+                    <p>View your weekly attendance history</p>
+                </div>
+
+                <div class="attendance-container">
+                    <div id="attendanceReport" class="attendance-report-card">
+                        <!-- Attendance report will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div id="qr-code" class="content-section">
+                <div class="section-header fade-in">
+                    <h2><i class="fas fa-qrcode me-2"></i>My QR Code</h2>
+                    <p>Show this QR code to your teacher for attendance marking</p>
+                </div>
+
+                <div class="qr-container">
+                    <div class="qr-display-card slide-in-up">
+                        <div id="studentQRCode" class="qr-code-display">
+                            <!-- QR code will be displayed here -->
+                        </div>
+                        <div class="qr-instructions mt-4">
+                            <h5><i class="fas fa-info-circle me-2"></i>Instructions</h5>
+                            <ul class="instruction-list">
+                                <li>Show this QR code to your teacher</li>
+                                <li>Ensure good lighting for better scanning</li>
+                                <li>Keep the code steady while scanning</li>
+                                <li>Your attendance will be marked automatically</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Alert Toast -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="alertToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                <!-- Message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize student dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeStudentDashboard();
+        });
+
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+        function initializeStudentDashboard() {
+            if (!currentUser.role || currentUser.role !== 'student') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update student info in sidebar
+            document.getElementById('studentName').textContent = currentUser.name || 'Student';
+            document.getElementById('studentId').textContent = currentUser.student_id || '-';
+            document.getElementById('studentClass').textContent = currentUser.class || '-';
+            document.getElementById('studentSection').textContent = currentUser.section || '-';
+            document.getElementById('studentRoll').textContent = currentUser.roll_no || '-';
+            
+            // Load initial data
+            loadAttendanceReport();
+            generateStudentQR();
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked nav link
+            event.target.classList.add('active');
+            
+            // Load section-specific data
+            if (sectionId === 'attendance') {
+                loadAttendanceReport();
+            } else if (sectionId === 'qr-code') {
+                generateStudentQR();
+            }
+        }
+
+        function loadAttendanceReport() {
+            if (!currentUser.student_id) return;
+            
+            showLoading();
+            fetch(`http://localhost:5000/weekly_report/${currentUser.student_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.weekly_attendance) {
+                        displayAttendanceReport(data);
+                        updateOverviewStats(data.weekly_attendance);
+                    } else {
+                        showToast('Error loading attendance report', 'error');
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Error loading attendance report:', error);
+                    showToast('Error loading attendance report', 'error');
+                });
+        }
+
+        function displayAttendanceReport(reportData) {
+            const container = document.getElementById('attendanceReport');
+            
+            let attendanceHTML = '';
+            let chartData = [];
+            
+            reportData.weekly_attendance.forEach((record, index) => {
+                const statusClass = record.status === 'present' ? 'success' : 'danger';
+                const statusIcon = record.status === 'present' ? 'check-circle' : 'times-circle';
+                const dateObj = new Date(record.date);
+                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                const dateStr = dateObj.toLocaleDateString();
+                
+                attendanceHTML += `
+                    <div class="attendance-day slide-in-up" style="animation-delay: ${index * 0.1}s">
+                        <div class="day-info">
+                            <div class="day-name">${dayName}</div>
+                            <div class="day-date">${dateStr}</div>
+                        </div>
+                        <div class="day-status">
+                            <span class="status-badge badge-${statusClass}">
+                                <i class="fas fa-${statusIcon} me-1"></i>
+                                ${record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                chartData.push({
+                    day: dayName.substring(0, 3),
+                    status: record.status
+                });
+            });
+            
+            container.innerHTML = `
+                <div class="report-header">
+                    <h4><i class="fas fa-calendar-week me-2"></i>Weekly Attendance Report</h4>
+                    <p class="text-muted">Last 7 days attendance record</p>
+                </div>
+                <div class="attendance-timeline">
+                    ${attendanceHTML}
+                </div>
+            `;
+        }
+
+        function updateOverviewStats(weeklyAttendance) {
+            let presentCount = 0;
+            let absentCount = 0;
+            
+            weeklyAttendance.forEach(record => {
+                if (record.status === 'present') {
+                    presentCount++;
+                } else {
+                    absentCount++;
+                }
+            });
+            
+            const totalDays = weeklyAttendance.length;
+            const attendancePercentage = totalDays > 0 ? Math.round((presentCount / totalDays) * 100) : 0;
+            
+            // Update stats cards with animation
+            animateCountUp('presentDays', presentCount);
+            animateCountUp('absentDays', absentCount);
+            animateCountUp('attendancePercentage', attendancePercentage, '%');
+        }
+
+        function animateCountUp(elementId, finalValue, suffix = '') {
+            const element = document.getElementById(elementId);
+            const duration = 1000;
+            const increment = finalValue / (duration / 16);
+            let currentValue = 0;
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    element.textContent = finalValue + suffix;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(currentValue) + suffix;
+                }
+            }, 16);
+        }
+
+        function generateStudentQR() {
+            if (!currentUser.student_id) return;
+            
+            showLoading();
+            fetch(`http://localhost:5000/generate_qr/${currentUser.student_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.qr_image) {
+                        displayStudentQR(data);
+                    } else {
+                        showToast('Error generating QR code', 'error');
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Error generating QR code:', error);
+                    showToast('Error generating QR code', 'error');
+                });
+        }
+
+        function displayStudentQR(qrData) {
+            const container = document.getElementById('studentQRCode');
+            
+            container.innerHTML = `
+                <div class="qr-code-container">
+                    <div class="student-qr-info">
+                        <h4><i class="fas fa-user me-2"></i>${qrData.name}</h4>
+                        <div class="student-details">
+                            <p><i class="fas fa-id-badge me-2"></i><strong>Student ID:</strong> ${qrData.student_id}</p>
+                            <p><i class="fas fa-graduation-cap me-2"></i><strong>Class:</strong> ${qrData.qr_data.class} - ${qrData.qr_data.section}</p>
+                            <p><i class="fas fa-hashtag me-2"></i><strong>Roll No:</strong> ${qrData.qr_data.roll_no}</p>
+                        </div>
+                    </div>
+                    <div class="qr-image-container">
+                        <img src="${qrData.qr_image}" alt="Student QR Code" class="student-qr-image">
+                    </div>
+                </div>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('alertToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            // Update toast styling based on type
+            const toastHeader = toast.querySelector('.toast-header');
+            const icon = toastHeader.querySelector('i');
+            
+            // Reset classes
+            icon.className = 'fas me-2';
+            
+            switch(type) {
+                case 'success':
+                    icon.classList.add('fa-check-circle', 'text-success');
+                    break;
+                case 'error':
+                    icon.classList.add('fa-exclamation-triangle', 'text-danger');
+                    break;
+                default:
+                    icon.classList.add('fa-info-circle', 'text-primary');
+            }
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+    </script>
+</body>
+</html>

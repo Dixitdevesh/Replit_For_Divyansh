@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Attendance Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landingPage" class="page active">
+        <div class="hero-section">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <div class="hero-content fade-in">
+                            <div class="hero-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h1 class="hero-title">School Attendance Management</h1>
+                            <p class="hero-subtitle">Modern, efficient, and secure attendance tracking system</p>
+                            <div class="hero-buttons">
+                                <button class="btn btn-primary btn-lg me-3" onclick="showTeacherAuth()">
+                                    <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Portal
+                                </button>
+                                <button class="btn btn-outline-primary btn-lg" onclick="showStudentLogin()">
+                                    <i class="fas fa-user-graduate me-2"></i>Student Portal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Authentication Page -->
+    <div id="teacherAuthPage" class="page">
+        <div class="auth-container">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-5">
+                        <div class="auth-card slide-in-left">
+                            <div class="auth-header">
+                                <h2 class="auth-title">Teacher Portal</h2>
+                                <p class="auth-subtitle">Manage your classroom attendance</p>
+                            </div>
+                            
+                            <!-- Login Form -->
+                            <form id="teacherLoginForm" class="auth-form">
+                                <div class="mb-3">
+                                    <label for="teacherLoginEmail" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="teacherLoginEmail" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="teacherLoginPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="teacherLoginPassword" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 mb-3">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </form>
+
+                            <!-- Register Form (Hidden by default) -->
+                            <form id="teacherRegisterForm" class="auth-form" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="teacherRegisterName" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="teacherRegisterName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="teacherRegisterEmail" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="teacherRegisterEmail" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="teacherRegisterPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="teacherRegisterPassword" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 mb-3">
+                                    <i class="fas fa-user-plus me-2"></i>Register
+                                </button>
+                            </form>
+
+                            <div class="auth-switch">
+                                <span id="authSwitchText">Don't have an account?</span>
+                                <button type="button" class="btn btn-link p-0 ms-2" id="authSwitchBtn" onclick="toggleAuthForm()">Register here</button>
+                            </div>
+
+                            <button class="btn btn-outline-secondary mt-3" onclick="showLanding()">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Home
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Login Page -->
+    <div id="studentLoginPage" class="page">
+        <div class="auth-container">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-5">
+                        <div class="auth-card slide-in-right">
+                            <div class="auth-header">
+                                <h2 class="auth-title">Student Portal</h2>
+                                <p class="auth-subtitle">Access your attendance records</p>
+                            </div>
+                            
+                            <form id="studentLoginForm" class="auth-form">
+                                <div class="mb-3">
+                                    <label for="studentLoginEmail" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="studentLoginEmail" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="studentLoginPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="studentLoginPassword" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 mb-3">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </form>
+
+                            <button class="btn btn-outline-secondary" onclick="showLanding()">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Home
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Alert Toast -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="alertToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                <!-- Message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
