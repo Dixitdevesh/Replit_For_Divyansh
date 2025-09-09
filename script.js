@@ -1,6 +1,14 @@
+// ============================
+// School App JavaScript
+// ============================
+
 // Global variables
 let currentUser = null;
 let authMode = 'login'; // 'login' or 'register'
+
+// Detect environment (localhost vs ngrok)
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = isLocal ? 'http://localhost:5000' : ' https://aa561eaedf47.ngrok-free.app';
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -8,8 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
+// ============================
+// Initialization
+// ============================
 function initializeApp() {
-    // Check if user is already logged in
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
@@ -20,25 +30,18 @@ function initializeApp() {
 }
 
 function setupEventListeners() {
-    // Teacher authentication form handlers
     const teacherLoginForm = document.getElementById('teacherLoginForm');
     const teacherRegisterForm = document.getElementById('teacherRegisterForm');
     const studentLoginForm = document.getElementById('studentLoginForm');
 
-    if (teacherLoginForm) {
-        teacherLoginForm.addEventListener('submit', handleTeacherLogin);
-    }
-    
-    if (teacherRegisterForm) {
-        teacherRegisterForm.addEventListener('submit', handleTeacherRegister);
-    }
-    
-    if (studentLoginForm) {
-        studentLoginForm.addEventListener('submit', handleStudentLogin);
-    }
+    if (teacherLoginForm) teacherLoginForm.addEventListener('submit', handleTeacherLogin);
+    if (teacherRegisterForm) teacherRegisterForm.addEventListener('submit', handleTeacherRegister);
+    if (studentLoginForm) studentLoginForm.addEventListener('submit', handleStudentLogin);
 }
 
-// Navigation functions
+// ============================
+// Navigation Functions
+// ============================
 function showLanding() {
     hideAllPages();
     document.getElementById('landingPage').classList.add('active');
@@ -58,9 +61,7 @@ function showStudentLogin() {
 }
 
 function hideAllPages() {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
 }
 
 function toggleAuthForm() {
@@ -73,7 +74,7 @@ function updateAuthForm() {
     const registerForm = document.getElementById('teacherRegisterForm');
     const switchText = document.getElementById('authSwitchText');
     const switchBtn = document.getElementById('authSwitchBtn');
-    
+
     if (authMode === 'login') {
         loginForm.style.display = 'block';
         registerForm.style.display = 'none';
@@ -87,177 +88,129 @@ function updateAuthForm() {
     }
 }
 
-// Authentication handlers
+// ============================
+// Authentication Handlers
+// ============================
 function handleTeacherLogin(event) {
     event.preventDefault();
-    
     const email = document.getElementById('teacherLoginEmail').value;
     const password = document.getElementById('teacherLoginPassword').value;
-    
+
     if (!email || !password) {
         showToast('Please fill in all fields', 'error');
         return;
     }
-    
-    const loginData = {
-        email: email,
-        password: password
-    };
-    
+
     showLoading();
-    
-    fetch('http://localhost:5000/login', {
+    fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(loginData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         hideLoading();
-        
         if (data.message && data.role === 'teacher') {
-            // Success
             currentUser = data;
             localStorage.setItem('currentUser', JSON.stringify(data));
             showToast('Login successful! Redirecting...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'teacher_dashboard.html';
-            }, 1500);
+            setTimeout(() => window.location.href = 'teacher_dashboard.html', 1500);
         } else {
-            // Error
             showToast(data.error || 'Login failed', 'error');
         }
     })
-    .catch(error => {
+    .catch(err => {
         hideLoading();
-        console.error('Login error:', error);
+        console.error('Login error:', err);
         showToast('Network error. Please try again.', 'error');
     });
 }
 
 function handleTeacherRegister(event) {
     event.preventDefault();
-    
     const name = document.getElementById('teacherRegisterName').value;
     const email = document.getElementById('teacherRegisterEmail').value;
     const password = document.getElementById('teacherRegisterPassword').value;
-    
+
     if (!name || !email || !password) {
         showToast('Please fill in all fields', 'error');
         return;
     }
-    
     if (password.length < 6) {
         showToast('Password must be at least 6 characters long', 'error');
         return;
     }
-    
-    const registerData = {
-        name: name,
-        email: email,
-        password: password
-    };
-    
+
     showLoading();
-    
-    fetch('http://localhost:5000/register_teacher', {
+    fetch(`${API_BASE_URL}/register_teacher`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(registerData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         hideLoading();
-        
         if (data.message) {
-            // Success
             showToast('Registration successful! Please login.', 'success');
-            
-            // Switch to login form
             authMode = 'login';
             updateAuthForm();
-            
-            // Clear the register form
             document.getElementById('teacherRegisterForm').reset();
         } else {
-            // Error
             showToast(data.error || 'Registration failed', 'error');
         }
     })
-    .catch(error => {
+    .catch(err => {
         hideLoading();
-        console.error('Registration error:', error);
+        console.error('Registration error:', err);
         showToast('Network error. Please try again.', 'error');
     });
 }
 
 function handleStudentLogin(event) {
     event.preventDefault();
-    
     const email = document.getElementById('studentLoginEmail').value;
     const password = document.getElementById('studentLoginPassword').value;
-    
+
     if (!email || !password) {
         showToast('Please fill in all fields', 'error');
         return;
     }
-    
-    const loginData = {
-        email: email,
-        password: password
-    };
-    
+
     showLoading();
-    
-    fetch('http://localhost:5000/login', {
+    fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(loginData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         hideLoading();
-        
         if (data.message && data.role === 'student') {
-            // Success
             currentUser = data;
             localStorage.setItem('currentUser', JSON.stringify(data));
             showToast('Login successful! Redirecting...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'student_dashboard.html';
-            }, 1500);
+            setTimeout(() => window.location.href = 'student_dashboard.html', 1500);
         } else {
-            // Error
             showToast(data.error || 'Login failed', 'error');
         }
     })
-    .catch(error => {
+    .catch(err => {
         hideLoading();
-        console.error('Login error:', error);
+        console.error('Login error:', err);
         showToast('Network error. Please try again.', 'error');
     });
 }
 
-// Utility functions
+// ============================
+// Utility Functions
+// ============================
 function redirectToDashboard() {
     if (!currentUser || !currentUser.role) {
         showLanding();
         return;
     }
-    
-    if (currentUser.role === 'teacher') {
-        window.location.href = 'teacher_dashboard.html';
-    } else if (currentUser.role === 'student') {
-        window.location.href = 'student_dashboard.html';
-    }
+    if (currentUser.role === 'teacher') window.location.href = 'teacher_dashboard.html';
+    else if (currentUser.role === 'student') window.location.href = 'student_dashboard.html';
 }
 
 function clearUserData() {
@@ -266,179 +219,74 @@ function clearUserData() {
 }
 
 function showLoading() {
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    if (loadingSpinner) {
-        loadingSpinner.style.display = 'flex';
-    }
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) spinner.style.display = 'flex';
 }
 
 function hideLoading() {
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    if (loadingSpinner) {
-        loadingSpinner.style.display = 'none';
-    }
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) spinner.style.display = 'none';
 }
 
 function showToast(message, type = 'info') {
     const toast = document.getElementById('alertToast');
     const toastMessage = document.getElementById('toastMessage');
-    
-    if (!toast || !toastMessage) {
-        // Fallback to alert if toast elements don't exist
-        alert(message);
-        return;
-    }
-    
+    if (!toast || !toastMessage) { alert(message); return; }
+
     toastMessage.textContent = message;
-    
-    // Update toast styling based on type
     const toastHeader = toast.querySelector('.toast-header');
     const icon = toastHeader.querySelector('i');
-    
-    // Reset classes
     icon.className = 'fas me-2';
-    
+
     switch(type) {
-        case 'success':
-            icon.classList.add('fa-check-circle', 'text-success');
-            break;
-        case 'error':
-            icon.classList.add('fa-exclamation-triangle', 'text-danger');
-            break;
-        case 'warning':
-            icon.classList.add('fa-exclamation-circle', 'text-warning');
-            break;
-        default:
-            icon.classList.add('fa-info-circle', 'text-primary');
+        case 'success': icon.classList.add('fa-check-circle', 'text-success'); break;
+        case 'error': icon.classList.add('fa-exclamation-triangle', 'text-danger'); break;
+        case 'warning': icon.classList.add('fa-exclamation-circle', 'text-warning'); break;
+        default: icon.classList.add('fa-info-circle', 'text-primary');
     }
-    
-    const bsToast = new bootstrap.Toast(toast, {
-        autohide: true,
-        delay: 5000
-    });
-    bsToast.show();
+
+    new bootstrap.Toast(toast, { autohide: true, delay: 5000 }).show();
 }
 
-// Validation functions
+// ============================
+// Validation Helpers
+// ============================
 function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+function validatePassword(password) { return password && password.length >= 6; }
+function validateRequired(fields) { return fields.every(f => f && f.trim() !== ''); }
 
-function validatePassword(password) {
-    return password && password.length >= 6;
-}
-
-function validateRequired(fields) {
-    return fields.every(field => field && field.trim() !== '');
-}
-
-// Animation helpers
-function addAnimation(element, animationClass, delay = 0) {
-    setTimeout(() => {
-        element.classList.add(animationClass);
-    }, delay);
-}
-
-function removeAnimation(element, animationClass) {
-    element.classList.remove(animationClass);
-}
-
-// Error handling
-function handleNetworkError(error) {
-    console.error('Network error:', error);
-    showToast('Network connection error. Please check your connection and try again.', 'error');
-}
-
-function handleAPIError(data) {
-    if (data && data.error) {
-        showToast(data.error, 'error');
-    } else {
-        showToast('An unexpected error occurred. Please try again.', 'error');
-    }
-}
-
-// Local storage helpers
-function saveToLocalStorage(key, data) {
-    try {
-        localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-        console.error('Error saving to localStorage:', error);
-    }
-}
-
-function getFromLocalStorage(key) {
-    try {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
-    } catch (error) {
-        console.error('Error reading from localStorage:', error);
-        return null;
-    }
-}
-
-function removeFromLocalStorage(key) {
-    try {
-        localStorage.removeItem(key);
-    } catch (error) {
-        console.error('Error removing from localStorage:', error);
-    }
-}
-
-// Form helpers
+// ============================
+// Form Helpers
+// ============================
 function clearForm(formId) {
     const form = document.getElementById(formId);
-    if (form) {
-        form.reset();
-    }
+    if (form) form.reset();
 }
-
 function disableForm(formId) {
     const form = document.getElementById(formId);
-    if (form) {
-        const inputs = form.querySelectorAll('input, button, select, textarea');
-        inputs.forEach(input => {
-            input.disabled = true;
-        });
-    }
+    if (form) form.querySelectorAll('input, button, select, textarea').forEach(el => el.disabled = true);
 }
-
 function enableForm(formId) {
     const form = document.getElementById(formId);
-    if (form) {
-        const inputs = form.querySelectorAll('input, button, select, textarea');
-        inputs.forEach(input => {
-            input.disabled = false;
-        });
-    }
+    if (form) form.querySelectorAll('input, button, select, textarea').forEach(el => el.disabled = false);
 }
 
-// Responsive helpers
-function isMobile() {
-    return window.innerWidth <= 768;
-}
+// ============================
+// Responsive Helpers
+// ============================
+function isMobile() { return window.innerWidth <= 768; }
+function isTablet() { return window.innerWidth > 768 && window.innerWidth <= 1024; }
+function isDesktop() { return window.innerWidth > 1024; }
 
-function isTablet() {
-    return window.innerWidth > 768 && window.innerWidth <= 1024;
-}
-
-function isDesktop() {
-    return window.innerWidth > 1024;
-}
-
-// Initialize responsive behavior
-window.addEventListener('resize', function() {
-    // Handle responsive changes if needed
-    if (isMobile()) {
-        // Mobile-specific adjustments
-    } else if (isTablet()) {
-        // Tablet-specific adjustments
-    } else {
-        // Desktop-specific adjustments
-    }
+window.addEventListener('resize', () => {
+    // Add responsive adjustments if needed
 });
 
-// Export functions for use in other files
+// ============================
+// Export Functions
+// ============================
 window.schoolApp = {
     showLanding,
     showTeacherAuth,
